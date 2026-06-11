@@ -245,7 +245,6 @@ class HashCheck(QWidget):
             self.match_label.setText("\u2717  NO MATCH — file differs from expected")
             self.match_label.setStyleSheet("color: red; font-weight: bold;")
 
-
 def main():
     app = QApplication(sys.argv)
     window = HashCheck()
@@ -255,3 +254,12 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+def closeEvent(self, event):
+    """Shut the scan down cleanly when the window is closed mid-scan."""
+    if self.thread is not None and self.thread.isRunning():
+        if self.worker is not None:
+            self.worker.cancel()      # ask the loop to stop
+        self.thread.quit()            # stop the thread's event loop
+        self.thread.wait(2000)        # wait up to 2s for it to finish
+    event.accept()
